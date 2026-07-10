@@ -1,29 +1,13 @@
 pipeline {
-
     agent any
 
-    options {
-        timestamps()
-    }
-
     parameters {
-
-        string(
-            name: 'APP_NAME',
-            defaultValue: 'Jenkins Maven Demo',
-            description: 'Enter Application Name'
-        )
-
-        string(
-            name: 'VERSION',
-            defaultValue: '1.0',
-            description: 'Enter Application Version'
-        )
-
+        string(name: 'APP_NAME', defaultValue: 'Jenkins Maven Demo')
+        string(name: 'VERSION', defaultValue: '1.0')
         choice(
             name: 'ENVIRONMENT',
             choices: ['DEV', 'QA', 'UAT', 'PROD'],
-            description: 'Select Deployment Environment'
+            description: 'Select Environment'
         )
     }
 
@@ -31,30 +15,39 @@ pipeline {
 
         stage('Display Parameters') {
             steps {
-
                 echo "Application : ${params.APP_NAME}"
                 echo "Version : ${params.VERSION}"
                 echo "Environment : ${params.ENVIRONMENT}"
-
             }
         }
 
         stage('Build') {
             steps {
-                sh 'cd jenkins-maven-demo && mvn clean package'
+                sh '''
+                cd jenkins-maven-demo
+                mvn clean package
+                '''
+            }
+        }
+
+        stage('Deploy') {
+
+            when {
+                expression {
+                    params.ENVIRONMENT == 'PROD'
+                }
+            }
+
+            steps {
+                echo "Deploying application to Production..."
             }
         }
 
     }
 
     post {
-
         success {
-            echo "Build Successful"
-        }
-
-        always {
-            echo "Pipeline Finished"
+            echo "Pipeline Finished Successfully"
         }
     }
 }
