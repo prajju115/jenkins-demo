@@ -6,26 +6,36 @@ pipeline {
         timestamps()
     }
 
-    environment {
-        APP_NAME = "Jenkins Maven Demo"
-        VERSION = "1.0"
-        OWNER = "Prajwal"
+    parameters {
+
+        string(
+            name: 'APP_NAME',
+            defaultValue: 'Jenkins Maven Demo',
+            description: 'Enter Application Name'
+        )
+
+        string(
+            name: 'VERSION',
+            defaultValue: '1.0',
+            description: 'Enter Application Version'
+        )
+
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['DEV', 'QA', 'UAT', 'PROD'],
+            description: 'Select Deployment Environment'
+        )
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Display Parameters') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/prajju115/jenkins-demo.git'
-            }
-        }
 
-        stage('Environment') {
-            steps {
-                echo "Application : ${APP_NAME}"
-                echo "Version : ${VERSION}"
-                echo "Owner : ${OWNER}"
+                echo "Application : ${params.APP_NAME}"
+                echo "Version : ${params.VERSION}"
+                echo "Environment : ${params.ENVIRONMENT}"
+
             }
         }
 
@@ -39,16 +49,12 @@ pipeline {
 
     post {
 
-        always {
-            echo "Pipeline Finished"
-        }
-
         success {
             echo "Build Successful"
         }
 
-        failure {
-            echo "Build Failed"
+        always {
+            echo "Pipeline Finished"
         }
     }
 }
